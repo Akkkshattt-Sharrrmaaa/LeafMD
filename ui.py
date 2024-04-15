@@ -1,9 +1,7 @@
-import io
-import streamlit as st
 import cv2
-import numpy as np
 import keras
-from PIL import Image
+import numpy as np
+import streamlit as st
 
 model = keras.models.load_model('plant_disease_classification_plant_village.keras')
 
@@ -42,24 +40,36 @@ def app():
                 prediction_class = np.argmax(prediction)
                 percentage = "{:.2f}".format(prediction[0][prediction_class]*100)
                 predicted_label = Labels[prediction_class]
-                st.toast("Prediction Successful")
-                st.success("Prediction : {}".format(predicted_label))
-                st.success("There is a {}% chance that your plant is dealing with the above given prediction.".format(percentage))
+                st.success("Prediction : {} , Probability : {}% ".format(predicted_label, percentage))
+                st.success("Please note that the above given probability is relative to all the diseases we can predict, therefore the predictions might not be completely accurate.")
 
                 st.session_state['predicted_label'] = True
 
     # Right column for displaying supported plants
     with col2:
-        st.subheader("We currently support the following plants:")
+        html_code = "<div style='margin-bottom: 40px;'>"
+        st.subheader("We currently support the following plants : ")
         plants = ["Apple", "Blueberry", "Cherry", "Corn", "Grape", "Orange", "Peach", "Bell Pepper", "Potato",
                   "Raspberry", "Soybean", "Squash", "Strawberry", "Tomato", ]
-        html_code = "<div style='column-count: 3;'>"
+        html_code += "<div style='column-count: 3;'>"
         for plant in plants:
             html_code += f"<li>{plant}</li>"
         html_code += "</div>"
         st.write(html_code, unsafe_allow_html=True)
+
+        st.subheader("Our model is currently limited to the following diseases : ")
+        diseases = ["Scab", "Black Rot", "Ceader Rust", "Powdery Mildew", "Cercospora Leaf Spot", "Common Rust", "Northern Leaf Blight", "Esca (Black Measles)", "Leaf Blight (Isariopsis Leaf Spot)", "Haunglongbing (Citrus Greening)", "Bacterial Spot", "Late Blight", "Leaf Scorch", "Early Blight", "Late Blight", "Leaf Mold", "Septoria Leaf Spot", "Spider Mites ", "Target Spot", "Mosaic Virus", "Yellow Leaf Curl"]
+        html_code = "<div style='column-count: 3; margin-bottom: 20px;'>"
+        for disease in diseases:
+            html_code += f"<li>{disease}</li>"
+        html_code += "</div>"
+        st.write(html_code, unsafe_allow_html=True)
+
         if uploaded_file is not None and st.session_state.get('predicted_label', False):
             st.success("Thank You for using LeafMD !")
+
+            # Set the prediction_made flag to True
+            st.session_state['prediction_made'] = True
 
 
 if __name__ == '__main__':
